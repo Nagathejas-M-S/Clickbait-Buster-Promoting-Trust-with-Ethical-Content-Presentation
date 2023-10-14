@@ -12,6 +12,7 @@ Anti-clickbait, also known as responsible and ethical content presentation, invo
  1.Open your command prompt and run the above commands
   * pip install nltk
   * pip install scikit-learn
+
  2.If you are running Creating.py for first time , uncomment the above lines and run . For future running you can comment them
    nltk.download('stopwords')
    nltk.download('punkt')
