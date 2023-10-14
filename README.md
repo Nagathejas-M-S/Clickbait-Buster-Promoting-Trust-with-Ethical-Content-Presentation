@@ -8,11 +8,11 @@ Misleading clickbait can harm trust in online content and platforms, as users be
 Anti-clickbait, also known as responsible and ethical content presentation, involves features and practices that aim to provide transparent and honest information to users.
 
 ## Very important
-##pre-setup required before running Creating.py
-1.open your command prompt and run the above commands
+## Pre-setup required before running Creating.py
+ 1.Open your command prompt and run the above commands
   * pip install nltk
   * pip install scikit-learn
-2.if you are running Creating.py for first time , uncomment the above lines and run . For future running you can comment them
+    If you are running Creating.py for first time , uncomment the above lines and run . For future running you can comment them
   # nltk.download('stopwords')
   # nltk.download('punkt')
 
