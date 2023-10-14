@@ -149,7 +149,7 @@ def extracting(url_data):
         docs1 = setup_docs()
 
         # print_frequency_dist(docs1)
-        #train_classifier(docs1)
+        train_classifier(docs1)
         # deployment in production
 
         return classify(url_data)
