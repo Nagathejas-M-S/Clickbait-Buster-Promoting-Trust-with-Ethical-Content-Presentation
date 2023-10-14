@@ -7,7 +7,22 @@ Misleading clickbait can harm trust in online content and platforms, as users be
 
 Anti-clickbait, also known as responsible and ethical content presentation, involves features and practices that aim to provide transparent and honest information to users.
 
+## Very important
+##pre-setup required before running Creating.py
+1.open your command prompt and run the above commands
+  * pip install nltk
+  * pip install scikit-learn
+2.if you are running Creating.py for first time , uncomment the above lines and run . For future running you can comment them
+  # nltk.download('stopwords')
+  # nltk.download('punkt')
 
+## Meaning of files
+  Creating.py - main python file which holds main algorithm
+  temp.csv - training data and testing data
+  naive_bayes_classifier.pkl
+  and
+  count_vectorizer.pkl - they are files which holds vectors
+  
 ## Features
 
 The key features and functionalities of our project are
