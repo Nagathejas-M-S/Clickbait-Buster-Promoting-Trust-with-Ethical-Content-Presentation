@@ -17,10 +17,112 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn import metrics
 import pickle
 from bs4 import BeautifulSoup
-
 import requests
+import csv
+from difflib import SequenceMatcher
 
 
+def string_similarity(s1, s2):
+    # Create a SequenceMatcher object with the two strings
+    sequence_matcher = SequenceMatcher(None, s1, s2)
+
+    # Get the ratio of similarity between the two strings
+    similarity_ratio = sequence_matcher.ratio()
+
+    # Calculate the percentage of matching
+    matching_percentage = similarity_ratio * 100
+
+    return matching_percentage
+
+
+# ---------------------------------------------------------------------------
+
+def Database_checker(url):
+    data = []
+
+    # Specify the path to your CSV file
+    csv_file = "History.csv"
+
+    # Open and read the CSV file
+    with open(csv_file, "r", encoding='utf-8') as file:
+        csv_reader = csv.reader(file)
+        # Iterate through the rows and create tuples with columns 1
+        for row in csv_reader:
+            if len(row) <= 4:
+                col1 = row[0]  # First column
+                col4 = row[1]
+                data.append(col1)
+                data.append(col4)
+
+    # print(data)
+
+    if url in data:
+        index = data.index(url)
+        print(data[index + 1])
+        return 0
+    else:
+        return 1
+
+
+def database_updater(url, clkbat_y_n):
+    # Define the data you want to append
+    data_to_append = [url, clkbat_y_n]
+
+    # Define the CSV file path
+    csv_file_path = "History.csv"
+
+    # Open the CSV file in append mode
+    with open(csv_file_path, mode='a', newline='') as file:
+        # Create a CSV writer object
+        csv_writer = csv.writer(file)
+
+        # Write the data to the CSV file
+        csv_writer.writerow(data_to_append)
+
+
+# ---------------------------------------------------------------------------------------------------------------
+def web_name_check(url):
+    # Replace 'your_file.csv' with the path to your CSV file
+    csv_file = 'Web_Scrapped_websites.csv'
+
+    # Replace 'column_name' with the name of the column you want to extract unique values from
+    column_name = 'Website'
+
+    # Initialize an empty set to store unique values
+    unique_values = set()
+    updated_values = set()
+
+    # Open the CSV file for reading
+    with open(csv_file, 'r', newline='', encoding='latin1') as file:
+        reader = csv.DictReader(file)
+
+        # Iterate through each row in the CSV
+        for row in reader:
+            # Add the value in the specified column to the set
+            unique_values.add(row[column_name])
+
+    # Convert the set to a list if needed
+    unique_values_list = list(unique_values)
+
+    # Now, unique_values_list contains the unique values from the specified column
+    # print(unique_values_list)
+
+    for value in unique_values_list:
+        parts = value.split('.')
+
+        extracted_string = parts[1]
+        updated_values.add(extracted_string)
+        updated_list = list(updated_values)
+
+    updated_list.append('livestrong')
+
+    for i in range(len(updated_list)):
+        if (string_similarity(updated_list[i], url) >= 85.00 and string_similarity(updated_list[i], url) != 100.00):
+            return 0
+    return 1
+
+
+# ------------------------------------------------------------------------------------------------------------
 def extracting(url_data):
     stop_words = set(stopwords.words('english'))
     stop_words.add('said')
@@ -106,7 +208,7 @@ def extracting(url_data):
         recall = metrics.recall_score(y_test, y_pred, average='micro')
         f1 = metrics.f1_score(y_test, y_pred, average='micro')
 
-        print("%s\t%f\t%f\t%f\n" % (title, precision, recall, f1))
+        # print("%s\t%f\t%f\t%f\n" % (title, precision, recall, f1))
 
     def train_classifier(docs):
         X_train, X_test, y_train, y_test = get_splits(docs)
@@ -149,7 +251,7 @@ def extracting(url_data):
         docs1 = setup_docs()
 
         # print_frequency_dist(docs1)
-        train_classifier(docs1)
+        # train_classifier(docs1)
         # deployment in production
 
         return classify(url_data)
@@ -170,34 +272,42 @@ def remove_ads(html_content):
 
 
 url1 = ''
-
 # Misleading
-#url1 = 'https://www.daijiworld.com/news/newsDisplay?newsID=1009705'
+url1 = 'https://www.daijiworld.com/news/newsDisplay?newsID=1009705'
 
 # Not misleading
-url1 =  'https://www.indiatoday.in/movies/celebrities/story/aaditya-thackeray-breaks-silence-i-am-not-linked-to-sushant-singh-rajput-death-this-is-dirty-politics-1707762-2020-08-04'
+# url1 = 'https://www.indiatoday.in/business/story/ferrari-to-accept-crypto-currencies-as-payment-for-its-cars-in-us-europe-next-2449083-2023-10-14'
 
-response = requests.get(url1)
-html_content = response.content
+if web_name_check((url1.split('.'))[1]):
+    if Database_checker(url1):
+        response = requests.get(url1)
+        html_content = response.content
 
-# Remove the ads.
-html_content = remove_ads(html_content)
+        # Remove the ads.
+        html_content = remove_ads(html_content)
 
-soup = BeautifulSoup(html_content, 'lxml')
-header = soup.find('h1').text.replace('\n', '')
-header_ans = extracting("header")
-print(header_ans)
+        soup = BeautifulSoup(html_content, 'lxml')
+        header = soup.find('h1').text.replace('\n', '')
+        header_ans = extracting(header)
+        # print(header_ans)
 
-paragraphs = soup.find_all('p')
+        paragraphs = soup.find_all('p')
 
-paragraph = ''
+        paragraph = ''
 
-for temp in paragraphs:
-    paragraph = paragraph + (temp.text.replace('\n', ''))
-body_ans = extracting("paragraph")
-print(body_ans)
+        for temp in paragraphs:
+            paragraph = paragraph + (temp.text.replace('\n', ''))
+        # print(paragraph)
+        body_ans = extracting(paragraph)
+        # print(body_ans)
 
-if header_ans == body_ans:
-    print("Its not a misleading clickbait")
+        if header_ans == body_ans:
+            print("Its not a misleading clickbait")
+            database_updater(url1, 'Its not a misleading clickbait')
+        else:
+            print("Its a misleading clickbait")
+            database_updater(url1, 'Its a misleading clickbait')
+
 else:
     print("Its a misleading clickbait")
+    database_updater(url1, 'Its a misleading clickbait')
