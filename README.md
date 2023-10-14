@@ -18,11 +18,13 @@ Anti-clickbait, also known as responsible and ethical content presentation, invo
   * nltk.download('punkt')
 
 ## Meaning of files
-  Creating.py - main python file which holds main algorithm
-  temp.csv - training data and testing data
-  naive_bayes_classifier.pkl
-  and
-  count_vectorizer.pkl - they are files which holds vectors
+ * Creating.py - main python file which holds main algorithm
+ * temp.csv - training data and testing data
+ * naive_bayes_classifier.pkl
+   and
+    count_vectorizer.pkl - they are files which holds vectors
+ * History.csv is a database that stores history of previous predictions and can be used to recycle the answer      so there will be no need of running model again for that url
+ * Web_Scrapped_websites.csv - contains dataset of most popular websites
   
 ## Features
 
