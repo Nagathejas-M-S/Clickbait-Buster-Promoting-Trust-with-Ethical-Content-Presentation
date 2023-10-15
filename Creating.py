@@ -1,4 +1,3 @@
-import os
 import random
 import string
 
@@ -22,6 +21,23 @@ import csv
 from difflib import SequenceMatcher
 
 
+def ads_check(ads_url, header_main):
+    ads_relate = []
+
+    for url_ad in ads_url:
+        sol = extract_web_and_ml(url_ad)
+        sol1, sol2 = sol
+        if sol1 == '-1':
+            ads_relate.append([url_ad, 0])
+        elif sol1 == header_main:
+            ads_relate.append([url_ad, 1])
+        else:
+            ads_relate.append([url_ad, 0])
+
+    print(ads_relate)
+
+# ---------------------------------------------------------------
+
 def string_similarity(s1, s2):
     # Create a SequenceMatcher object with the two strings
     sequence_matcher = SequenceMatcher(None, s1, s2)
@@ -33,7 +49,6 @@ def string_similarity(s1, s2):
     matching_percentage = similarity_ratio * 100
 
     return matching_percentage
-
 
 # ---------------------------------------------------------------------------
 
@@ -114,12 +129,30 @@ def web_name_check(url):
         updated_values.add(extracted_string)
         updated_list = list(updated_values)
 
-    updated_list.append('livestrong')
+    updated_list.append('indiatoday')
 
     for i in range(len(updated_list)):
-        if (string_similarity(updated_list[i], url) >= 85.00 and string_similarity(updated_list[i], url) != 100.00):
+        if (string_similarity(updated_list[i], url) >= 85.00) and (string_similarity(updated_list[i], url) != 100.00):
             return 0
     return 1
+
+
+#------------------------------------------------------------------------------------------
+
+def web_scraped_websites_appender(url_new):
+    # Define the data you want to append
+    data_to_append = ['', url_new]
+
+    # Define the CSV file path
+    csv_file_path = "Web_Scrapped_websites.csv"
+
+    # Open the CSV file in append mode
+    with open(csv_file_path, mode='a', newline='') as file:
+        # Create a CSV writer object
+        csv_writer = csv.writer(file)
+
+        # Write the data to the CSV file
+        csv_writer.writerow(data_to_append)
 
 
 # ------------------------------------------------------------------------------------------------------------
@@ -246,15 +279,16 @@ def extracting(url_data):
 
         return pred[0]
 
-    if __name__ == '__main__':
-        docs1 = []
-        docs1 = setup_docs()
+    #
+    # if __name__ == '_main_':
+    docs1 = []
+    docs1 = setup_docs()
 
-        # print_frequency_dist(docs1)
-        train_classifier(docs1)
-        # deployment in production
+    # print_frequency_dist(docs1)
+    #train_classifier(docs1)
+    # deployment in production
 
-        return classify(url_data)
+    return classify(url_data)
 
 
 def remove_ads(html_content):
@@ -271,43 +305,81 @@ def remove_ads(html_content):
     return soup.prettify()
 
 
-url1 = ''
+def extract_web_and_ml(url1):
+    header_ans = ''
+    body_ans = ''
+    if web_name_check((url1.split('.'))[1]):
+        if Database_checker(url1):
+            response = requests.get(url1)
+            if response.text == [200]:
+                html_content = response.content
+
+                # Remove the ads.
+                html_content = remove_ads(html_content)
+
+                soup = BeautifulSoup(html_content, 'lxml')
+                header = soup.find('h1').text.replace('\n', '')
+                header_ans = extracting(header)
+                # print(header_ans)
+
+                paragraphs = soup.find_all('p')
+
+                paragraph = ''
+
+                for temp in paragraphs:
+                    paragraph = paragraph + (temp.text.replace('\n', ''))
+                # print(paragraph)
+                body_ans = extracting(paragraph)
+                # print(body_ans)
+
+            if header_ans == body_ans:
+                database_updater(url1, 'Its not a misleading clickbait')
+            else:
+                database_updater(url1, 'Its a misleading clickbait')
+
+            # print(header_ans)
+            # print(body_ans)
+
+    else:
+        database_updater(url1, 'Its a misleading clickbait')
+        header_ans = '-1'
+
+    return header_ans, body_ans
+
+
+url12 = ''
 # Misleading
-url1 = 'https://www.daijiworld.com/news/newsDisplay?newsID=1009705'
+# url12 = 'https://www.daijiworld.com/news/newsDisplay?newsID=1009705'
 
 # Not misleading
-# url1 = 'https://www.indiatoday.in/business/story/ferrari-to-accept-crypto-currencies-as-payment-for-its-cars-in-us-europe-next-2449083-2023-10-14'
-
-if web_name_check((url1.split('.'))[1]):
-    if Database_checker(url1):
-        response = requests.get(url1)
-        html_content = response.content
-
-        # Remove the ads.
-        html_content = remove_ads(html_content)
-
-        soup = BeautifulSoup(html_content, 'lxml')
-        header = soup.find('h1').text.replace('\n', '')
-        header_ans = extracting(header)
-        # print(header_ans)
-
-        paragraphs = soup.find_all('p')
-
-        paragraph = ''
-
-        for temp in paragraphs:
-            paragraph = paragraph + (temp.text.replace('\n', ''))
-        # print(paragraph)
-        body_ans = extracting(paragraph)
-        # print(body_ans)
-
-        if header_ans == body_ans:
-            print("Its not a misleading clickbait")
-            database_updater(url1, 'Its not a misleading clickbait')
-        else:
-            print("Its a misleading clickbait")
-            database_updater(url1, 'Its a misleading clickbait')
-
+# url12 =  'https://www.indiatoday.in/movies/celebrities/story/aaditya-thackeray-breaks-silence-i-am-not-linked-to-sushant-singh-rajput-death-this-is-dirty-politics-1707762-2020-08-04'
+#url12 = 'https://www.indiatoday.in/business/story/ferrari-to-accept-crypto-currencies-as-payment-for-its-cars-in-us-europe-next-2449083-2023-10-14'
+url12 = 'https://www.pes.edu'
+ans = extract_web_and_ml(url12)
+head_cat, body_cat = ans
+if head_cat == body_cat:
+    print("Its not a misleading clickbait")
+    web_scraped_websites_appender(url12)
 else:
     print("Its a misleading clickbait")
-    database_updater(url1, 'Its a misleading clickbait')
+
+# Getting ads
+
+response1 = requests.get(url12)
+html_content1 = response1.content
+
+soup1 = BeautifulSoup(html_content1, 'lxml')
+
+list_url = []
+
+links = soup1.find_all('a')
+for link in links:
+    href = link.get('href')
+    if href and href.startswith('http'):
+        list_url.append(href)
+
+list_url = list_url[:20]
+
+print(list_url)
+
+ads_check(list_url, head_cat)
