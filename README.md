@@ -52,3 +52,11 @@ When we train the Ml we get around 90% accuracy and in the test cases we are get
 ### Commercial Opportunities
 
 The Anti Click-Bait should be sufficient for most (all) academic and hobby purposes, and certainly for all simulation-based purposes on a basic level.
+
+
+
+### Steps to run the new React application
+
+1.Open Ghost-riders-app in Pycharm in your local PC and then run python api/index.py  
+
+2.Open Ghost-riders-app/frontend in seperate Pycharm window and run npm start 
