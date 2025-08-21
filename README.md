@@ -10,8 +10,10 @@ Anti-clickbait, also known as responsible and ethical content presentation, invo
 ## Very important
 ## Pre-setup required before running Creating.py
  1.Open your command prompt and run the above commands
-  * pip install nltk
-  * pip install scikit-learn
+ ```bash
+   pip install nltk
+   pip install scikit-learn
+   ```
 
  2.If you are running Creating.py for first time , uncomment the above lines and run . For future running you can comment them
   * nltk.download('stopwords')
@@ -57,6 +59,13 @@ The Anti Click-Bait should be sufficient for most (all) academic and hobby purpo
 
 ### Steps to run the new React application
 
-1.Open Ghost-riders-app in Pycharm in your local PC and then run python api/index.py  
+1.Open Ghost-riders-app in Pycharm in your local PC and then run 
+```bash
+   python api/index.py  
+   ```
 
-2.Open Ghost-riders-app/frontend in seperate Pycharm window and run npm start 
+2.Open Ghost-riders-app/frontend in seperate Pycharm window and run 
+```bash
+   npm start  
+   ```
+
